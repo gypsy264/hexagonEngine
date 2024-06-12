@@ -12,13 +12,14 @@ namespace Project
         private Renderer _renderer;
         private Engine _engine;
         private List<GameObject> _gameObjects;
-        private GameObject _background;
+        
 
         public Level(Renderer renderer, Engine engine)
         {
             _renderer = renderer;
             _engine = engine;
             _gameObjects = new List<GameObject>();
+            _renderer = new Renderer(); // Initialize the renderer here
         }
 
         public void Initialize()
@@ -39,27 +40,35 @@ namespace Project
             }
         }
 
-        public void Update(float deltaTime)
+        public void AddGameObjectDynamic(string tag, Vector3 position, Vector3 scale, string texturePath, int layer)
+        {
+            var gameObject = new GameObject(tag, position, scale, texturePath, _renderer, _engine, layer);
+            _gameObjects.Add(gameObject);
+        }
+
+public void Update(float deltaTime)
+{
+    var gameObjectsToRemove = new List<GameObject>();
+
+    for (int i = _gameObjects.Count - 1; i >= 0; i--)
     {
-        var objectsToRemove = new List<GameObject>();
+        var gameObject = _gameObjects[i];
+        gameObject.Update(deltaTime);
 
-        foreach (var gameObject in _gameObjects)
+        if (gameObject.ShouldRemove)
         {
-            gameObject.Update(deltaTime);
-
-            if (gameObject.ShouldRemove)
-            {
-                objectsToRemove.Add(gameObject);
-            }
+            gameObjectsToRemove.Add(gameObject);
         }
-
-        foreach (var objectToRemove in objectsToRemove)
-        {
-            _gameObjects.Remove(objectToRemove);
-        }
-
-        CheckCollisions();
     }
+
+    foreach (var gameObject in gameObjectsToRemove)
+    {
+        _gameObjects.Remove(gameObject);
+    }
+
+    //_currentLevel?.Update(deltaTime);
+    CheckCollisions();
+}
 
         public void Render()
         {

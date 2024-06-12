@@ -1,6 +1,7 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
+
 namespace Project.Graphics
 {
     public class Renderer
@@ -79,7 +80,7 @@ namespace Project.Graphics
         public Vector3 AdjustScale(Texture texture, Vector3 baseScale)
         {
             float textureAspectRatio = (float)texture.Width / texture.Height;
-            float screenAspectRatio = (float)1280 / 720; // Assuming a window resolution of 1280x720
+            float screenAspectRatio = (float)1920 / 1080; // Assuming a window resolution of 1280x720
 
             Vector3 adjustedScale = baseScale;
 

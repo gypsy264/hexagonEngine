@@ -10,6 +10,7 @@ namespace Project.Game
     {
 
         private Hexabeat _hexabeat;
+        bool HasBeenClick = false;
 
         public Player(Hexabeat hexabeat)
         {
@@ -32,10 +33,19 @@ namespace Project.Game
             {
 
                 
+                if(HasBeenClick == false){
                     // Create a new GameObject
-                GameObject spawnedObject = new GameObject("SpawnedObject", GameObject.Position, new Vector3(1, 1, 1), "Graphics/Resources/moneybagSprite.png", _hexabeat.Renderer, GameObject.Engine, layer: 1);
-                // Add the spawned object to the current level
-                _hexabeat.Scene.GetCurrentLevel().AddGameObject(spawnedObject);
+                    HasBeenClick = true;
+                    GameObject spawnedObject = new GameObject("SpawnedObject", GameObject.Position, new Vector3(1, 1, 1), "Graphics/Resources/moneybagSprite.png", _hexabeat.Renderer, GameObject.Engine, layer: 1);
+                    spawnedObject.AddScript(new DestroySelf(spawnedObject));
+                    // Add the spawned object to the current level
+                    _hexabeat.Scene.GetCurrentLevel().AddGameObject(spawnedObject);
+                    Console.WriteLine(HasBeenClick);
+                }else{
+                    HasBeenClick = true;
+                    Console.WriteLine(HasBeenClick);
+                }
+                
                 
             }
 

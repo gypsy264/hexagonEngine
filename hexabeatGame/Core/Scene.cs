@@ -1,11 +1,16 @@
-using System;
+using Project.Core;
+using Project.Graphics;
 using System.Collections.Generic;
+using OpenTK.Mathematics;
 using Project.Game;
 
 namespace Project.Core
 {
     public class Scene
     {
+        private Renderer _renderer;
+        private Engine _engine;
+
         private List<GameObject> _gameObjects;
         private List<Level> _levels;
         private Level _currentLevel;
@@ -16,6 +21,13 @@ namespace Project.Core
             _prefabs = new Dictionary<string, GameObject>();
             _gameObjects = new List<GameObject>();
             _levels = new List<Level>();
+            _renderer = new Renderer(); // Initialize the renderer here
+        }
+
+        public void AddGameObjectDynamic(string tag, Vector3 position, Vector3 scale, string texturePath, int layer)
+        {
+            var gameObject = new GameObject(tag, position, scale, texturePath, _renderer, _engine, layer);
+            _gameObjects.Add(gameObject);
         }
 
 
@@ -57,8 +69,13 @@ namespace Project.Core
             }
         }
 
+        
+
 public void Update(float deltaTime)
 {
+    try{
+    var gameObjectsToRemove = new List<GameObject>();
+
     for (int i = _gameObjects.Count - 1; i >= 0; i--)
     {
         var gameObject = _gameObjects[i];
@@ -66,12 +83,21 @@ public void Update(float deltaTime)
 
         if (gameObject.ShouldRemove)
         {
-            _gameObjects.RemoveAt(i);
+            gameObjectsToRemove.Add(gameObject);
         }
+    }
+
+    foreach (var gameObject in gameObjectsToRemove)
+    {
+        _gameObjects.Remove(gameObject);
     }
 
     _currentLevel?.Update(deltaTime);
     CheckCollisions();
+    }
+    catch{
+        Console.WriteLine("Error in Update method");
+    }
 }
         public Level GetCurrentLevel()
         {

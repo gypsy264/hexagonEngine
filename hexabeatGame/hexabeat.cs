@@ -18,6 +18,7 @@ namespace Project
 
         public Renderer Renderer => _renderer;
         public Scene Scene => _scene;
+        public Level level1 { get; private set; }
 
         public Hexabeat(Scene scene, Engine engine)
         {
@@ -59,6 +60,7 @@ namespace Project
             _controlledObject = new GameObject("Tebi", position, scale, texturePath, _renderer, engine, layer: 1, colliderSize: new Vector2(0.2f, 0.2f));
             _controlledObject.AddScript(new Player(this));
             level.AddGameObject(_controlledObject);
+            
 
             Vector3 posobject1 = new Vector3(0.5f, 0.0f, 0.0f);
             Vector3 Scaleobject1 = new Vector3(0.2f, 0.2f, 1.0f); // Base scale

@@ -3,13 +3,13 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using Project.Graphics;
-
-
+using ImGuiNET;
 
 namespace Project.Core
 {
     public class Engine : GameWindow
     {
+        //private ImGuiController _imGuiController;
         public Scene CurrentScene { get; private set; }
         private Hexabeat _hexabeat;
         private Matrix4 _projectionMatrix;
@@ -19,12 +19,16 @@ namespace Project.Core
         public Engine(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
         {
+            //_imGuiController = new ImGuiController(Size.X, Size.Y);
         }
 
         public void LoadScene(Scene scene)
         {
+            Console.WriteLine("Hexagon Engine - Build 0.0.0.1 INTERNAL DEV");
+            Console.WriteLine("Loading Scene/Context");
             CurrentScene?.UnloadContent();
             CurrentScene = scene;
+            Console.WriteLine($"Scene DATA: {scene}");
             CurrentScene.LoadContent();
         }
 
@@ -46,7 +50,19 @@ namespace Project.Core
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             CurrentScene?.Render();
-            
+
+            // ImGui Rendering
+            try
+            {
+               // _imGuiController.Update(this, (float)e.Time);
+                //_imGuiController.Render();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception in OnRenderFrame: {ex}");
+                throw;
+            }
+
             SwapBuffers();
 
             // Calculate FPS
@@ -54,7 +70,6 @@ namespace Project.Core
             _timeElapsed += e.Time;
             if (_timeElapsed >= 1.0)
             {
-                
                 Title = $"Hexabeat - FPS: {_frameCount}";
                 Console.WriteLine(Title);
                 _frameCount = 0;
@@ -81,6 +96,7 @@ namespace Project.Core
             GL.Viewport(0, 0, Size.X, Size.Y);
             UpdateProjectionMatrix();
             _hexabeat?.OnWindowResize(Size.X, Size.Y);
+            //_imGuiController.WindowResized(Size.X, Size.Y);
         }
 
         private void UpdateProjectionMatrix()
@@ -98,6 +114,7 @@ namespace Project.Core
         protected override void OnUnload()
         {
             CurrentScene?.UnloadContent();
+            //_imGuiController?.Dispose();
             base.OnUnload();
         }
     }
