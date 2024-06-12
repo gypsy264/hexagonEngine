@@ -19,7 +19,7 @@ namespace Project
             var gameWindowSettings = GameWindowSettings.Default;
             var nativeWindowSettings = new NativeWindowSettings()
             {
-                Size = new Vector2i(1280, 720),
+                Size = new Vector2i(1920, 1080),
                 WindowState = WindowState.Maximized,
                 Title = "Hexabeat",
                 Flags = ContextFlags.ForwardCompatible,
