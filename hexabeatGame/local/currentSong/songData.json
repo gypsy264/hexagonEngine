@@ -1,0 +1,14 @@
+{
+  "songData": {
+    "song": "RAISE MY SWORD",
+    "songArtist": "GALNERYUS",
+    "useVideo": false,
+    "DifficultyName": "Dificil",
+    "sensi": 5.5,
+    "BPM": 183,
+    "freqThres": 0.12,
+    "spawnCool": 0.45,
+    "randomSpeed": false,
+    "speed": 3
+  }
+}
