@@ -13,9 +13,9 @@ namespace Project
         private static void Main()
         {
 
-            var hotReloadService = new HotReloadService();
-            var scriptDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Game");
-            var scriptWatcher = new ScriptWatcher(scriptDirectoryPath, hotReloadService);
+            //var hotReloadService = new HotReloadService();
+            //var scriptDirectoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Game");
+            //var scriptWatcher = new ScriptWatcher(scriptDirectoryPath, hotReloadService);
             var nativeWindowSettings = new NativeWindowSettings()
             {
                 Size = new Vector2i(1280, 720),
