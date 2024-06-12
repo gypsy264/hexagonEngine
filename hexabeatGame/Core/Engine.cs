@@ -5,10 +5,13 @@ using OpenTK.Windowing.Desktop;
 using Project.Graphics;
 using ImGuiNET;
 
+
 namespace Project.Core
 {
     public class Engine : GameWindow
     {
+
+        
         //private ImGuiController _imGuiController;
         public Scene CurrentScene { get; private set; }
         private Hexabeat _hexabeat;
@@ -19,6 +22,7 @@ namespace Project.Core
         public Engine(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
         {
+           
             //_imGuiController = new ImGuiController(Size.X, Size.Y);
         }
 
@@ -48,6 +52,8 @@ namespace Project.Core
         {
             base.OnRenderFrame(e);
             GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            
 
             CurrentScene?.Render();
 

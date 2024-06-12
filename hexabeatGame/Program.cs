@@ -4,7 +4,12 @@ using OpenTK.Windowing.Desktop;
 using Project.Core;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-
+using System;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.OpenGL;
+using Avalonia.OpenGL.Controls;
+//using Avalonia.ReactiveUI;
 
 namespace Project
 {
