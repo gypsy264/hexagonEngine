@@ -25,7 +25,7 @@ namespace Project
             var nativeWindowSettings = new NativeWindowSettings()
             {
                 Size = new Vector2i(1920, 1080),
-                WindowState = WindowState.Maximized,
+                WindowState = WindowState.Fullscreen,
                 Title = "Hexabeat",
                 Flags = ContextFlags.ForwardCompatible,
                 //Flags = ContextFlags.ForwardCompatible,

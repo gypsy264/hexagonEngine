@@ -2,8 +2,18 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Wpf;
 using Project.Graphics;
 using ImGuiNET;
+using System.Drawing;
+using Avalonia.Input;
+using Avalonia.Controls;
+using Avalonia.OpenGL;
+using Avalonia.OpenGL.Controls;
+using Avalonia.Rendering;
+using Avalonia.Threading;
+using QuickFont;
+using System;
 
 
 namespace Project.Core
@@ -18,6 +28,13 @@ namespace Project.Core
         private Matrix4 _projectionMatrix;
         private int _frameCount;
         private double _timeElapsed;
+        private GLWpfControl _glControl;
+        
+        //private QFont _font;
+
+        //_font = new QFont("path/to/your/font.ttf", 16, new QFontBuilderConfiguration(true));
+
+        
 
         public Engine(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
@@ -25,6 +42,8 @@ namespace Project.Core
            
             //_imGuiController = new ImGuiController(Size.X, Size.Y);
         }
+
+
 
         public void LoadScene(Scene scene)
         {
@@ -43,9 +62,21 @@ namespace Project.Core
 
         protected override void OnLoad()
         {
+
+            //_font = new QFont("./fonts/Roboto-Regular.tff", 16, new QuickFont.Configuration.QFontBuilderConfiguration(true));
+            
             base.OnLoad();
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             UpdateProjectionMatrix();
+
+            // Setup Avalonia UI
+            // Setup Avalonia UI
+            /*Dispatcher.UIThread.Post(() =>
+            {
+                //var mainWindow = (MainWindow)Application.Current.ApplicationLifetime.MainWindow;
+                _openGlControl.FindControl<Panel>("OpenGLPanel");
+            });*/
+
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

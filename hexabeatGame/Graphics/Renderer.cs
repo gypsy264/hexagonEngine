@@ -34,6 +34,7 @@ namespace Project.Graphics
 
         private void Initialize()
         {
+        
             _vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(_vertexArrayObject);
 
@@ -80,7 +81,7 @@ namespace Project.Graphics
         public Vector3 AdjustScale(Texture texture, Vector3 baseScale)
         {
             float textureAspectRatio = (float)texture.Width / texture.Height;
-            float screenAspectRatio = (float)1920 / 1080; // Assuming a window resolution of 1280x720
+            float screenAspectRatio = (float)1920 / 1080; 
 
             Vector3 adjustedScale = baseScale;
 
