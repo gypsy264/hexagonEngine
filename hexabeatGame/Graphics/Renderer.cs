@@ -1,11 +1,13 @@
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-
+using System;
+using System.Collections.Generic;
 
 namespace Project.Graphics
 {
     public class Renderer
     {
+
         private Shader _shader;
         private int _vertexArrayObject;
         private int _vertexBufferObject;
@@ -34,7 +36,6 @@ namespace Project.Graphics
 
         private void Initialize()
         {
-        
             _vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(_vertexArrayObject);
 
@@ -55,6 +56,8 @@ namespace Project.Graphics
             var texCoordLocation = _shader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+
+            // Load the font texture
         }
 
         public void SetProjectionMatrix(Matrix4 projectionMatrix)
@@ -66,7 +69,10 @@ namespace Project.Graphics
         {
             _shader.Use();
 
+
             texture.Use(TextureUnit.Texture0);
+            
+            GL.ActiveTexture(TextureUnit.Texture0);
 
             int modelLocation = GL.GetUniformLocation(_shader.Handle, "model");
             GL.UniformMatrix4(modelLocation, false, ref modelMatrix);
@@ -81,7 +87,7 @@ namespace Project.Graphics
         public Vector3 AdjustScale(Texture texture, Vector3 baseScale)
         {
             float textureAspectRatio = (float)texture.Width / texture.Height;
-            float screenAspectRatio = (float)1920 / 1080; 
+            float screenAspectRatio = (float)1920 / 1080;
 
             Vector3 adjustedScale = baseScale;
 
@@ -96,5 +102,7 @@ namespace Project.Graphics
 
             return adjustedScale;
         }
+
+        
     }
 }

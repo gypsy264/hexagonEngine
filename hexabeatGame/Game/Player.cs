@@ -36,7 +36,7 @@ namespace Project.Game
                 if(HasBeenClick == false){
                     // Create a new GameObject
                     HasBeenClick = true;
-                    GameObject spawnedObject = new GameObject("SpawnedObject", GameObject.Position, new Vector3(1, 1, 1), "Graphics/Resources/moneybagSprite.png", _hexabeat.Renderer, GameObject.Engine, layer: 1);
+                    GameObject spawnedObject = new GameObject("SpawnedObject", GameObject.Position, new Vector3(1, 1, 1), "Graphics/Resources/moneybagSprite.png", _hexabeat.Renderer, GameObject.Engine, layer: 2);
                     spawnedObject.AddScript(new DestroySelf(spawnedObject));
                     // Add the spawned object to the current level
                     _hexabeat.Scene.GetCurrentLevel().AddGameObject(spawnedObject);

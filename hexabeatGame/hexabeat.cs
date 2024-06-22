@@ -53,6 +53,8 @@ namespace Project
             _background = new GameObject("Background",bgPosition, Vector3.One, bgTexturePath, _renderer, engine, layer: -1);
             _scene.AddGameObject(_background);
 
+           
+
             // Create other game objects for level 1
             Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
             Vector3 scale = new Vector3(0.2f, 0.2f, 1.0f); // Base scale
