@@ -1,159 +1,114 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
+using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
+using NAudio.Wave;
 
-public class AudioAnalyzer
+namespace Project.Core
 {
-    private int _buffer;
+    public class AudioAnalyzer : IDisposable
+    {
+        private int _buffer;
     private int _source;
-    private byte[] _audioData;
-    private GCHandle _audioDataHandle;
-    private Thread _analyzeThread;
-    private bool _isPlaying = false;
-    private int _sampleRate;
-    private int _channels;
-    private readonly float[] _fftBuffer;
-    public event Action OnBeatDetected;
+    private ALContext _context;
 
     public AudioAnalyzer(string filePath)
     {
-        // Load audio file data
-        _audioData = LoadWavFile(filePath, out _sampleRate, out _channels);
-        _fftBuffer = new float[1024];
+        // Initialize the audio context
+        _context = new ALContext();
 
-        // Pin audio data
-        _audioDataHandle = GCHandle.Alloc(_audioData, GCHandleType.Pinned);
-
-        // Initialize OpenAL
+        // Generate a buffer and a source
         _buffer = AL.GenBuffer();
-        CheckALError("AL.GenBuffer");
-
         _source = AL.GenSource();
-        CheckALError("AL.GenSource");
 
-        ALFormat format = _channels == 1 ? ALFormat.Mono16 : ALFormat.Stereo16;
-        AL.BufferData(_buffer, format, _audioDataHandle.AddrOfPinnedObject(), _audioData.Length, _sampleRate);
-        CheckALError("AL.BufferData");
-
-        AL.Source(_source, ALSourcei.Buffer, _buffer);
-        CheckALError("AL.Source (Buffer)");
-        
-        AL.Source(_source, ALSourcef.Gain, 1.0f); // Set volume
-        CheckALError("AL.Source (Gain)");
-
-        AL.Source(_source, ALSource3f.Position, 0.0f, 0.0f, 0.0f); // Set source position
-        CheckALError("AL.Source (Position)");
-
-        AL.Listener(ALListener3f.Position, 0.0f, 0.0f, 0.0f); // Set listener position
-        CheckALError("AL.Listener (Position)");
-    }
-
-    public void Play()
-    {
-        _isPlaying = true;
-        AL.SourcePlay(_source);
-        CheckALError("AL.SourcePlay");
-
-        AL.GetSource(_source, ALGetSourcei.SourceState, out int state);
-        Console.WriteLine($"Source state after play: {(ALSourceState)state}");
-        
-        _analyzeThread = new Thread(AnalyzeAudio);
-        _analyzeThread.Start();
-    }
-
-    public void Stop()
-    {
-        _isPlaying = false;
-        AL.SourceStop(_source);
-        CheckALError("AL.SourceStop");
-
-        _analyzeThread?.Join();
-    }
-
-    private void AnalyzeAudio()
-    {
-        while (_isPlaying)
+        // Load the MP3 file and fill the buffer
+        using (Mp3FileReader mp3FileReader = new Mp3FileReader(filePath))
         {
-            // Placeholder beat detection logic
-            for (int i = 0; i < _fftBuffer.Length; i++)
+            WaveStream waveStream = WaveFormatConversionStream.CreatePcmStream(mp3FileReader);
+            int channels = waveStream.WaveFormat.Channels;
+            int bitsPerSample = waveStream.WaveFormat.BitsPerSample;
+            int sampleRate = waveStream.WaveFormat.SampleRate;
+
+            byte[] soundData = new byte[waveStream.Length];
+            waveStream.Read(soundData, 0, soundData.Length);
+
+            // Bind the buffer data to the source
+            IntPtr ptr = Marshal.AllocHGlobal(soundData.Length);
+            Marshal.Copy(soundData, 0, ptr, soundData.Length);
+            AL.BufferData(_buffer, GetSoundFormat(channels, bitsPerSample), ptr, soundData.Length, sampleRate);
+            AL.Source(_source, ALSourcei.Buffer, _buffer);
+        }
+    }
+
+        public void Play()
+        {
+            // Play the sound
+            AL.SourcePlay(_source);
+        }
+
+        public void Stop()
+        {
+            // Stop the sound
+            AL.SourceStop(_source);
+        }
+
+        private void LoadWave(string filename, out int channels, out int bits, out int rate, out byte[] soundData)
+        {
+            using (FileStream fs = File.OpenRead(filename))
+            using (BinaryReader reader = new BinaryReader(fs))
             {
-                if (_fftBuffer[i] > 0.5f) // Adjust threshold as necessary
-                {
-                    OnBeatDetected?.Invoke();
-                }
+                // RIFF header
+                string signature = new string(reader.ReadChars(4));
+                if (signature != "RIFF")
+                    throw new NotSupportedException("Specified stream is not a wave file.");
+
+                int riff_chunck_size = reader.ReadInt32();
+
+                string format = new string(reader.ReadChars(4));
+                if (format != "WAVE")
+                    throw new NotSupportedException("Specified stream is not a wave file.");
+
+                // WAVE header
+                string format_signature = new string(reader.ReadChars(4));
+                if (format_signature != "fmt ")
+                    throw new NotSupportedException("Specified wave file is not supported.");
+
+                int format_chunk_size = reader.ReadInt32();
+                int audio_format = reader.ReadInt16();
+                int num_channels = reader.ReadInt16();
+                int sample_rate = reader.ReadInt32();
+                int byte_rate = reader.ReadInt32();
+                int block_align = reader.ReadInt16();
+                int bits_per_sample = reader.ReadInt16();
+
+                string data_signature = new string(reader.ReadChars(4));
+                if (data_signature != "data")
+                    throw new NotSupportedException("Specified wave file is not supported.");
+
+                int data_chunk_size = reader.ReadInt32();
+                soundData = reader.ReadBytes(data_chunk_size);
+
+                channels = num_channels;
+                bits = bits_per_sample;
+                rate = sample_rate;
             }
-
-            Thread.Sleep(100); // Adjust as needed
         }
-    }
 
-    private byte[] LoadWavFile(string filePath, out int sampleRate, out int channels)
-    {
-        using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-        using (BinaryReader reader = new BinaryReader(fs))
+        private ALFormat GetSoundFormat(int channels, int bits)
         {
-            // Read the RIFF header
-            string chunkID = new string(reader.ReadChars(4));
-            if (chunkID != "RIFF")
-                throw new NotSupportedException("Invalid WAV file: Missing RIFF header.");
-
-            int fileSize = reader.ReadInt32();
-            string format = new string(reader.ReadChars(4));
-            if (format != "WAVE")
-                throw new NotSupportedException("Invalid WAV file: Missing WAVE header.");
-
-            // Read the fmt chunk
-            string fmtChunkID = new string(reader.ReadChars(4));
-            if (fmtChunkID != "fmt ")
-                throw new NotSupportedException("Invalid WAV file: Missing fmt chunk.");
-
-            int fmtChunkSize = reader.ReadInt32();
-            int audioFormat = reader.ReadInt16();
-            if (audioFormat != 1)
-                throw new NotSupportedException("Invalid WAV file: Only PCM encoding is supported.");
-
-            channels = reader.ReadInt16();
-            sampleRate = reader.ReadInt32();
-            int byteRate = reader.ReadInt32();
-            int blockAlign = reader.ReadInt16();
-            short bitsPerSample = reader.ReadInt16();
-
-            if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24)
-                throw new NotSupportedException("Only 8-bit, 16-bit, and 24-bit WAV files are supported.");
-
-            // Read the data chunk
-            string dataChunkID = new string(reader.ReadChars(4));
-            if (dataChunkID != "data")
-                throw new NotSupportedException("Invalid WAV file: Missing data chunk.");
-
-            int dataSize = reader.ReadInt32();
-            byte[] data = reader.ReadBytes(dataSize);
-
-            Console.WriteLine($"Channels: {channels}, SampleRate: {sampleRate}, BitsPerSample: {bitsPerSample}, DataSize: {dataSize}");
-
-            return data;
+            switch (channels)
+            {
+                case 1: return bits == 8? ALFormat.Mono8 : ALFormat.Mono16;
+                case 2: return bits == 8? ALFormat.Stereo8 : ALFormat.Stereo16;
+                default: throw new NotSupportedException("The specified sound format is not supported.");
+            }
         }
-    }
 
-    private void CheckALError(string operation)
-    {
-        ALError error = AL.GetError();
-        if (error != ALError.NoError)
+        public void Dispose()
         {
-            throw new InvalidOperationException($"OpenAL error {error} during {operation}");
+            AL.DeleteSource(_source);
+            AL.DeleteBuffer(_buffer);
         }
-    }
-
-    ~AudioAnalyzer()
-    {
-        if (_audioDataHandle.IsAllocated)
-        {
-            _audioDataHandle.Free();
-        }
-
-        AL.DeleteSource(_source);
-        AL.DeleteBuffer(_buffer);
     }
 }

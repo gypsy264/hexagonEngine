@@ -17,7 +17,7 @@ namespace Project.Game
         {
             _hexabeat = hexabeat;
             _audioAnalyzer = audioAnalyzer;
-            _audioAnalyzer.OnBeatDetected += HandleBeatDetected;
+            //_audioAnalyzer.OnBeatDetected += HandleBeatDetected;
         }
 
 
