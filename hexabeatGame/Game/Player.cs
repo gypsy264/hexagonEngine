@@ -10,12 +10,16 @@ namespace Project.Game
     {
 
         private Hexabeat _hexabeat;
-        bool HasBeenClick = false;
+        private AudioAnalyzer _audioAnalyzer;
+        private bool HasBeenClick = false;
 
-        public Player(Hexabeat hexabeat)
+        public Player(Hexabeat hexabeat, AudioAnalyzer audioAnalyzer)
         {
             _hexabeat = hexabeat;
+            _audioAnalyzer = audioAnalyzer;
+            _audioAnalyzer.OnBeatDetected += HandleBeatDetected;
         }
+
 
         public override void Update(float deltaTime)
         {
@@ -78,6 +82,19 @@ namespace Project.Game
                 GameObject.Position += new Vector3(1f, 0, 0) * deltaTime;
             }
         }
+
+        private void HandleBeatDetected()
+        {
+            SpawnObject(GameObject.Position);
+        }
+
+        private void SpawnObject(Vector3 position)
+        {
+            GameObject spawnedObject = new GameObject("SpawnedObject", position, new Vector3(1, 1, 1), "Graphics/Resources/moneybagSprite.png", _hexabeat.Renderer, GameObject.Engine, layer: 2);
+            spawnedObject.AddScript(new DestroySelf(spawnedObject));
+            _hexabeat.Scene.GetCurrentLevel().AddGameObject(spawnedObject);
+        }
+
 
         public override void OnCollision(GameObject other)
         {

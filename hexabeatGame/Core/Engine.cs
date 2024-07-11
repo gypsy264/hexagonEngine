@@ -3,6 +3,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Wpf;
+using Project.Game;
 using Project.Graphics;
 using ImGuiNET;
 using System.Drawing;
@@ -21,7 +22,7 @@ namespace Project.Core
     public class Engine : GameWindow
     {
 
-        
+        public AudioAnalyzer _audioAnalyzer;
         //private ImGuiController _imGuiController;
         public Scene CurrentScene { get; private set; }
         private Hexabeat _hexabeat;
@@ -39,8 +40,13 @@ namespace Project.Core
         public Engine(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
         {
-           
-            //_imGuiController = new ImGuiController(Size.X, Size.Y);
+            _audioAnalyzer = new AudioAnalyzer("local/currentSong/song.wav");
+            //_hexabeat = new Hexabeat(new Scene(), this);
+
+            /*var player = new Player(_hexabeat, _audioAnalyzer);
+            var playerGameObject = new GameObject("Player", new Vector3(0, 0, 0), new Vector3(1, 1, 1), "path/to/player/texture.png", _hexabeat.Renderer, this);
+            playerGameObject.AddScript(player);
+            _hexabeat.Scene.GetCurrentLevel().AddGameObject(playerGameObject);*/
         }
 
 
@@ -68,6 +74,7 @@ namespace Project.Core
             base.OnLoad();
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             UpdateProjectionMatrix();
+            //_audioAnalyzer.Play();
 
             // Setup Avalonia UI
             // Setup Avalonia UI
@@ -118,6 +125,8 @@ namespace Project.Core
         {
             base.OnUpdateFrame(e);
 
+            
+
             if (KeyboardState.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape))
             {
                 Close();
@@ -150,6 +159,7 @@ namespace Project.Core
 
         protected override void OnUnload()
         {
+            _audioAnalyzer.Stop();
             CurrentScene?.UnloadContent();
             //_imGuiController?.Dispose();
             base.OnUnload();

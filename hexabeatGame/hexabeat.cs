@@ -60,7 +60,7 @@ namespace Project
             Vector3 scale = new Vector3(0.2f, 0.2f, 1.0f); // Base scale
             string texturePath = "Graphics/Resources/tebi.png";
             _controlledObject = new GameObject("Tebi", position, scale, texturePath, _renderer, engine, layer: 1, colliderSize: new Vector2(0.2f, 0.2f));
-            _controlledObject.AddScript(new Player(this));
+            _controlledObject.AddScript(new Player(this, engine._audioAnalyzer));
             level.AddGameObject(_controlledObject);
             
 
@@ -83,6 +83,8 @@ namespace Project
             string texturePath = "Graphics/Resources/container.png";
             var otherObject = new GameObject("Tebi",position, scale, texturePath, _renderer, engine, layer: 1);
             level.AddGameObject(otherObject);
+
+            
 
             return level;
         }
